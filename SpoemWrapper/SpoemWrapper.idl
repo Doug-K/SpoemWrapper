@@ -1,0 +1,134 @@
+// SpoemWrapper.idl : IDL source for SpoemWrapper
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (SpoemWrapper.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(92DF9458-2DB6-457A-9536-409CCEAC9B4F),
+	dual,
+	nonextensible,
+	pointer_default(unique)
+]
+
+interface ISuperProOem : IDispatch {
+
+   typedef struct SPOEMDATAFILEPARA
+   {
+      char FileName[256];
+      boolean bSpecialLoadMode;
+      unsigned char chType;     //0  binary
+                                //1  Intel hex
+                                //2  Motorola
+                                //3  Tek
+                                //4  Extend Tek
+                                //5  Holtek .OTP 
+
+                                //0  jed
+
+      __int64 nBufferAddress; //used as BufferStart in SaveFile
+      __int64 nFileAddress;   //used as nSize in SaveFile
+      char chFileMode;	//0 normal
+                        //1 Even[1st of 2]
+                        //2 Odd[2nd of 2]
+                        //3 1st byte of 4
+                        //4 2nd byte of 4
+                        //5 3rd byte of 4
+                        //6 4th byte of 4
+                        //7 1st 2_byte of 4
+                        //8 2nd 2_byte of 4
+                        //remain error
+      boolean bInitBuffer;   // 1, fill buffer with initvalue
+      unsigned char chFillData;
+      int nWhichBufferSelect;
+
+   }SPOEMDATAFILEPARA, *LPSPOEMDATAFILEPARA;
+
+   typedef struct SPOEMBUFFERPARA {
+      boolean bExisting;
+      char chName[30];
+   }SPOEMBUFFERPARA, *LPSPOEMBUFFERPARA;
+
+   typedef struct SPOEMPROJECTPARA {
+      char chMfg[33];
+      char chDev[33];
+      char chAuto[17];
+   }SPOEMPROJECTPARA, *LPSPOEMPROJECTPARA;
+
+   typedef struct SPOEMPROGRAMSTATUS {
+      boolean bProgramming;
+      boolean bResult;
+      char chFunction;
+      char chProcess;
+   }SPOEMPROGRAMSTATUS, *LPSPOEMPROGRAMSTATUS;
+
+   typedef struct SPOEMOPERATIONERROR {
+      char chStep;
+      char chType;
+
+   }SPOEMOPERATIONERROR, *LPSPOEMOPERATIONERROR;
+
+   typedef struct SPOEMLOADDATAPARA {
+      boolean bWritetoBuffer;  // if TRUE, Data from chData to Buffer
+                            //    FALSE,	Data from Buffer to chData
+      __int64 nStartAddress; //used as BufferStart in SaveFile
+      __int64 nEndAddress;   //used as nSize in SaveFile
+      char chDataType;  //0 Data
+                        //5 EncrypTion
+                        //6 ConfigWord (128 Bytes)	
+      unsigned char* chData;
+   }SPOEMLOADDATAPARA, *LPSPOEMLOADDATAPARA;
+
+   typedef struct SPOEMSAVEDATAPARA {
+      char chFileName[256];
+      __int64 nStartAddress;
+      __int64 nSize;
+      unsigned char chType;     //0  binary
+                                //1  Intel hex
+                                //2  Motorola
+                                //0  jed
+      int nWhichBufferSelect;
+   }SPOEMSAVEDATAPARA, *LPSPOEMSAVEDATAPARA;
+
+   typedef struct SPOEMOPERATIONOPTION {
+      char chEnable;  //bit0 = 1, bIDCheck Enable
+                      //bit1 = 1, bBeeper Enable
+      boolean bIDCheck;
+      boolean bBeeper;
+   }SPOEMOPERATIONOPTION, *LPSPOEMOPERATIONOPTION;
+
+   [id(1)] HRESULT USBCommunication([out, retval] VARIANT_BOOL* Result);
+   [id(2)] HRESULT SelectDevice([in] CHAR* Manufacturer, [in] CHAR* Device, [out, retval] VARIANT_BOOL* Result);
+   [id(3)] HRESULT LoadDataFile([in,out] LPSPOEMDATAFILEPARA lpDataFilePara, [out, retval] VARIANT_BOOL* Result);
+   [id(4)] HRESULT LoadDataDirectly([in] LPSPOEMLOADDATAPARA lpSpOemLoadDataPara, [out, retval] VARIANT_BOOL* Result);
+   [id(5)] HRESULT SaveDataFile([in] LPSPOEMSAVEDATAPARA lpSpOemSaveDataPara, [out, retval] VARIANT_BOOL* Result);
+   [id(6)] HRESULT BeginProgram([in] CHAR* Auto, [out, retval] VARIANT_BOOL* Result);
+   [id(7)] HRESULT GetProgramStatus([in,out] LPSPOEMPROGRAMSTATUS lpSpOemProgramStatus);
+   [id(8)] HRESULT GetCheckSum([in] VARIANT_BOOL reCalc, [out, retval] ULONG* CheckSum);
+   [id(9)] HRESULT CheckPin([out, retval] VARIANT_BOOL* Result);
+   [id(10)] HRESULT OemGetError([out] SPOEMOPERATIONERROR* spOperationError);
+   [id(11)] HRESULT OperationOption([out] SPOEMOPERATIONOPTION* spOemOperationOption);
+   [id(12)] HRESULT CancelProgram([out, retval] VARIANT_BOOL* Result);
+   [id(13)] HRESULT GetBufferParameter([out] SPOEMBUFFERPARA* SpOemBufferPara);
+   [id(14)] HRESULT LoadProject([in] CHAR* PrjName, [out] SPOEMPROJECTPARA* SpOemProjectPara, [out, retval] VARIANT_BOOL* Result);
+};
+[
+	uuid(40513A26-7560-4989-9F02-AF7AE5BA4C12),
+	version(1.0),
+]
+library SpoemWrapperLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(F14CC1B4-82C4-4241-8A49-B53015F81C52)		
+	]
+	coclass SuperProOem
+	{
+		[default] interface ISuperProOem;
+	};
+};
+
